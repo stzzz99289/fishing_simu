@@ -14,9 +14,11 @@ def set_layout():
     k = (B - 2*glob.d_c) / (A - 2*glob.d_c)
     m = ceil((1 - k + sqrt((k+1)**2 + 4*k*N)) / 2)
     n = floor(N / m)
+    glob.m = m
+    glob.n = n
 
     # get final layout
-    N_sigma = m * (n - 1) + ceil(m/2)
+    glob.N_sigma = m * (n - 1) + ceil(m/2)
     glob.delta_Dx = (B - 2*glob.d_c) / (m - 1)
     glob.delta_Dy = (A - 2*glob.d_c) / (n - 1)
     glob.delta_t = glob.delta_Dy / glob.v_q
@@ -24,7 +26,7 @@ def set_layout():
     # print debug info
     if glob.print_info:
         print("{} columns with {} sensors each column. \
-        \n {} sensors in total.".format(m, n, N_sigma))
+        \n {} sensors in total.".format(m, n, glob.N_sigma))
         print("dx = {:.2f}, dy = {:.2f}, delta_t = {:.2f}" \
             .format(glob.delta_Dx, glob.delta_Dy, glob.delta_t))
     
@@ -32,11 +34,12 @@ def set_layout():
     assert (glob.delta_Dx >= 2 * glob.d_c)
     assert (glob.delta_Dy >= 2 * glob.d_c)
 
+def initialize_sensors():
     # initialize sensors
     j = 0
     glob.sensor_lst = []
-    for mi in range(m):
-        for ni in range(n):
+    for mi in range(glob.m):
+        for ni in range(glob.n):
             xj = mi * glob.delta_Dx + glob.d_c
             yj = ni * glob.delta_Dy + glob.d_c
             group_num = int(mi / glob.m_sx)
@@ -46,6 +49,7 @@ def set_layout():
     glob.max_gn = group_num
 
 def run_simulation(points_num=100, angles_num=6):
+    initialize_sensors()
     glob.detected_times = 0
     max_dist = 2 * (glob.A + glob.B)
     dist_arr = np.linspace(0, max_dist, points_num)
